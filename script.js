@@ -5,98 +5,113 @@ function toggleMenu() {
   icon.classList.toggle("open");
 }
 
-const scriptURL = 'https://script.google.com/macros/s/AKfycbx3tZCyqidzCp36Lzz706hrcAC626F4SL-ubMugrj0B2uOLo1UeCWpwEvVOWpxVGFYf/exec';
+const scriptURL =
+  "https://script.google.com/macros/s/AKfycbyUHUgCuxRLzJ2chiyiFIgiisOghuxcSFkEbhSKAR4-TdcrrsYFEm2kHsSzYFOvvjJi/exec";
 
-const form = document.forms['submit-form'];
+const form = document.querySelector("form");
 
-// const form = document.getElementById('submit-form');
+const fullname = document.getElementById("fullname");
+const place = document.getElementById("place");
+const email = document.getElementById("email");
+const mobile = document.getElementById("mobile");
+const message = document.getElementById("message");
 
-const name = document.getElementById('name');
-const place = document.getElementById('place');
-const email = document.getElementById('email');
-const mobile = document.getElementById('mobile');
-const message = document.getElementById('message');
+function validateInputs() {
+  const items = document.querySelectorAll(".form-control");
 
-form.addEventListener('submit', e => {
+  for (const item of items) {
+    if (item.value == "") {
+      item.classList.add("error");
+      item.parentElement.classList.add("error");
+    }
+
+    if (items[2].value != "") {
+      checkEmail();
+    }
+
+    items[2].addEventListener("keyup", () => {
+      checkEmail();
+    });
+
+    if (items[3].value != "") {
+      checkMobileNumber();
+    }
+
+    items[3].addEventListener("keyup", () => {
+      checkMobileNumber();
+    });
+
+    item.addEventListener("keyup", () => {
+      if (item.value != "") {
+        item.classList.remove("error");
+        item.parentElement.classList.remove("error");
+      } else {
+        item.classList.add("error");
+        item.parentElement.classList.add("error");
+      }
+    });
+  }
+}
+
+function checkEmail() {
+  const emailRegex =
+    /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,3})$/;
+
+  const errorTxtEmail = document.querySelector(".error-txt.email");
+
+  if (!email.value.match(emailRegex)) {
+    email.classList.add("error");
+    email.parentElement.classList.add("error");
+
+    if (email.value != "") {
+      errorTxtEmail.innerText = "Enter a valid email address";
+    } else {
+      errorTxtEmail.innerText = "Email is required";
+    }
+  } else {
+    email.classList.remove("error");
+    email.parentElement.classList.remove("error");
+  }
+}
+
+function checkMobileNumber() {
+  const mobileRegex = /^[7-9]\d{9}$/;
+
+  const errorTxtmobile = document.querySelector(".error-txt.mobile");
+
+  if (!mobile.value.match(mobileRegex)) {
+    mobile.classList.add("error");
+    mobile.parentElement.classList.add("error");
+
+    if (mobile.value != "") {
+      errorTxtmobile.innerText = "Enter a valid mobile number";
+    } else {
+      errorTxtmobile.innerText = "Mobile number is required";
+    }
+  } else {
+    mobile.classList.remove("error");
+    mobile.parentElement.classList.remove("error");
+  }
+}
+
+form.addEventListener("submit", (e) => {
   e.preventDefault();
   validateInputs();
 
-  if ((!name.classList.contains(".error")) && (!place.classList.contains(".error")) && (!email.classList.contains(".error"))
-    && (!mobile.classList.contains(".error")) && (!message.classList.contains(".error"))) {
-    console.log(document.querySelector("input").value)
+  if (
+    !fullname.classList.contains("error") &&
+    !place.classList.contains("error") &&
+    !email.classList.contains("error") &&
+    !mobile.classList.contains("error") &&
+    !message.classList.contains("error")
+  ) {
+    fetch(scriptURL, { method: "POST", body: new FormData(form) })
+      .then((resonse) =>
+        alert("Thank you! your details submitted successfully.")
+      )
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => console.error("Error!", error.message));
   }
-  // fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-  //   .then(resonse => alert("Thank you! your form is submitted successfully."))
-  //   .then(() => { window.location.reload(); })
-  //   .catch(error => console.error('Error!', error.message))
 });
-// form.addEventListener('submit', e => {
-//   e.preventDefault()
-//   fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-//     .then(resonse => alert("Thank you! your form is submitted successfully."))
-//     .then(() => { window.location.reload(); })
-//     .catch(error => console.error('Error!', error.message))
-// });
-
-const setError = (element, message) => {
-  const inputControl = element.parentElement;
-  const errorDisplay = inputControl.querySelector('.error');
-
-  errorDisplay.innerText = message;
-  inputControl.classList.add('error');
-  inputControl.classList.remove('success')
-}
-
-const setSuccess = element => {
-  const inputControl = element.parentElement;
-  const errorDisplay = inputControl.querySelector('.error');
-
-  errorDisplay.innerText = '';
-  inputControl.classList.add('success');
-  inputControl.classList.remove('error');
-};
-
-const isValidEmail = email => {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-}
-
-const validateInputs = () => {
-  const nameValue = name.value.trim();
-  const placeValue = place.value.trim();
-  const emailValue = email.value.trim();
-  const mobileValue = mobile.value.trim();
-  const messageValue = message.value.trim();
-
-  if (nameValue === '') {
-    setError(name, 'Name is required');
-  } else {
-    setSuccess(name);
-  }
-
-  if (placeValue === '') {
-    setError(place, 'Place is required');
-  } else {
-    setSuccess(place);
-  }
-
-  if (emailValue === '') {
-    setError(email, 'Email is required');
-  } else if (!isValidEmail(emailValue)) {
-    setError(email, 'Provide a valid email address');
-  } else {
-    setSuccess(email);
-  }
-
-  if (mobileValue === '') {
-    setError(mobile, 'Mobile is required');
-  } else {
-    setSuccess(mobile);
-  }
-
-  if (messageValue === '') {
-    setError(message, 'Message is required');
-  } else {
-    setSuccess(message);
-  }
-};
